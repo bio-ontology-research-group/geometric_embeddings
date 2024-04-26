@@ -15,9 +15,7 @@ import os
 
 
 def precompute_gci0_dc(data_path):
-    dataset = PathDataset(
-        os.path.join(data_path, "ontology.owl")
-    )
+    dataset = PathDataset(os.path.join(data_path, "ontology.owl"))
 
     elnorm = ELNormalizer()
     train_norm = elnorm.normalize(dataset.ontology)
@@ -96,9 +94,7 @@ def get_inv_gci0_dict(gci0_dict):
 
 
 def precompute_gci1_dc(data_path):
-    dataset = PathDataset(
-        os.path.join(data_path, "ontology.owl")
-    )
+    dataset = PathDataset(os.path.join(data_path, "ontology.owl"))
 
     gci0_dict = get_gci0_dict(data_path)
     inv_gci0_dict = get_inv_gci0_dict(gci0_dict)
@@ -157,9 +153,7 @@ def precompute_gci1_dc(data_path):
 
 
 def precompute_gci2_dc(data_path):
-    dataset = PathDataset(
-        os.path.join(data_path, "ontology.owl")
-    )
+    dataset = PathDataset(os.path.join(data_path, "ontology.owl"))
 
     gci0_dict = get_gci0_dict(data_path)
     inv_gci0_dict = get_inv_gci0_dict(gci0_dict)
@@ -211,9 +205,7 @@ def precompute_gci2_dc(data_path):
 
 
 def precompute_gci3_dc(data_path):
-    dataset = PathDataset(
-        os.path.join(data_path, "ontology.owl")
-    )
+    dataset = PathDataset(os.path.join(data_path, "ontology.owl"))
 
     gci0_dict = get_gci0_dict(data_path)
     inv_gci0_dict = get_inv_gci0_dict(gci0_dict)
@@ -265,9 +257,7 @@ def precompute_gci3_dc(data_path):
 
 
 def precompute_gci1_bot_dc(data_path):
-    dataset = PathDataset(
-        os.path.join(data_path, "ontology.owl")
-    )
+    dataset = PathDataset(os.path.join(data_path, "ontology.owl"))
 
     gci0_dict = get_gci0_dict(data_path)
     inv_gci0_dict = get_inv_gci0_dict(gci0_dict)
