@@ -1,3 +1,7 @@
+import mowl
+
+mowl.init_jvm("8g", "1g", 8)
+
 import math
 import numpy as np
 import torch as th
