@@ -12,7 +12,6 @@ from mowl.datasets.el import ELDataset
 class OntologyDataLoader:
     def __init__(
         self,
-        ontology,
         gci0,
         gci1,
         gci2,
@@ -31,7 +30,6 @@ class OntologyDataLoader:
         object_property_index_dict=None,
         random_neg_fraction=1,
     ):
-        self.ontology = ontology
         self.gci0 = gci0
         self.gci1 = gci1
         self.gci2 = gci2
@@ -448,16 +446,12 @@ class OntologyDataLoader:
             self.i += 1
             return (
                 gci0_batch,
-                gci0_weights,
                 gci0_neg_batch,
                 gci1_batch,
-                gci1_weights,
                 gci1_neg_batch,
                 gci2_batch,
-                gci2_weights,
                 gci2_neg_batch,
                 gci3_batch,
-                gci3_weights,
                 gci3_neg_batch,
                 gci0_bot_batch,
                 gci0_bot_neg_batch,
