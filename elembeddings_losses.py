@@ -33,7 +33,7 @@ def gci0_loss(
         return loss + class_reg(c) + class_reg(d)
 
 
-def gci0_bot_loss(data, class_rad, neg=False):
+def gci0_bot_loss(data, class_rad):
     rc = th.abs(class_rad(data[:, 0]))
     return rc
 
