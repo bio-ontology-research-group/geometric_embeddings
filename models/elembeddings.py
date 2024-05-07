@@ -277,6 +277,33 @@ class ELEmModule(ELModule):
 
 
 class ELEmbeddings(EmbeddingELModel):
+    """
+    ELEmbeddings model
+
+    :param dataset: dataset to use
+    :type dataset: data_utils.data.PPIYeastDataset/data_utils.data.PPIHumanDataset/data_utils.data.AFPYeastDataset/data_utils.data.AFPHumanDataset
+    :param embed_dim: embedding dimension
+    :type embed_dim: int
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param nb_rels: total number of relations
+    :type nb_rels: int
+    :param go_threshold: value from class_index_dict starting from which GO classes are encoded
+    :type go_threshold: int
+    :param embed_dim: embedding dimension
+    :type embed_dim: int
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :param reg_r: the radius of regularization ball
+    :type reg_r: float/int
+    :param reg_mode: mode of regularization, `relaxed` for \|c\| \leq R, `original` for \|c\| = R
+    :type reg_mode: float/int
+    :param neg_losses: abbreviations of GCIs to use for negative sampling
+    :type neg_losses: list(str)
+    """
+
     def __init__(
         self,
         dataset,
