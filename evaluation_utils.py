@@ -95,6 +95,10 @@ This is used to compute filtered metrics.
         self.load_training_scores()
 
     def filter_head_tail_data(self):
+        """
+        Filter triples not represented in the embeddings dictionary
+        """
+
         if self._loaded_ht_data:
             return
 
@@ -139,6 +143,10 @@ This is used to compute filtered metrics.
         self._loaded_ht_data = True
 
     def load_training_scores(self):
+        """
+        Collecting training scores
+        """
+
         if self._loaded_tr_scores or not self.compute_filtered_metrics:
             return
 
@@ -161,6 +169,18 @@ This is used to compute filtered metrics.
         naive_file=None,
         go_threshold=None,
     ):
+        """
+        Compute metrics to evaluate the model performance
+        :param activation: activation function to use for evaluation score computation
+        :type activation: callable
+        :param show: whether to print calculated metrics or not
+        :type show: bool
+        :param naive_file: absolute path to naive scores, should have the extension .npz
+        :type naive_file: str
+        :param go_threshold: value from class_index_dict starting from which GO classes are encoded
+        :type go_threshold: int
+        """
+
         if activation is None:
 
             def activation(x):
@@ -409,6 +429,25 @@ def elembeddings_sim(
     margin,
     loss_type,
 ):
+    """
+    Compute GCI2 (`C \sqsubseteq \exists R.D`) evaluation score
+
+    :param data: GCI2 data
+    :type data: torch.Tensor(torch.int64)
+    :param class_embed: class centers' embeddings
+    :type class_embed: torch.nn.modules.sparse.Embedding
+    :param class_rad: class radii embeddings
+    :type class_rad: torch.nn.modules.sparse.Embedding
+    :param rel_embed: relations' embeddings
+    :type rel_embed: torch.nn.modules.sparse.Embedding
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :return: evaluation score value for each data sample
+    :return type: torch.Tensor(torch.float64)
+    """
+
     loss_func = relu if loss_type == "relu" else leaky_relu
     c = class_embed(data[:, 0])
     rE = rel_embed(data[:, 1])
