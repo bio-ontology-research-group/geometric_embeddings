@@ -10,6 +10,45 @@ from mowl.datasets.el import ELDataset
 
 
 class OntologyDataLoader:
+    """
+    Custom dataloader
+
+    :param gci0: a set of axioms of type `C \sqsubseteq D`
+    :type gci0: torch.Tensor(torch.int64)
+    :param gci1: a set of axioms of type `C \sqcap D \sqsubseteq E`
+    :type gci1: torch.Tensor(torch.int64)
+    :param gci2: a set of axioms of type `C \sqsubseteq \exists R.D`
+    :type gci2: torch.Tensor(torch.int64)
+    :param gci3: a set of axioms of type `\exists R.C \sqsubseteq D`
+    :type gci3: torch.Tensor(torch.int64)
+    :param gci0_bot: a set of axioms of type `C \sqsubseteq \bot`
+    :type gci0_bot: torch.Tensor(torch.int64)
+    :param gci1_bot: a set of axioms of type `C \sqcap D \sqsubseteq \bot`
+    :type gci1_bot: torch.Tensor(torch.int64)
+    :param gci3_bot: a set of axioms of type `\exists R.C \sqsubseteq \bot`
+    :type gci3_bot: torch.Tensor(torch.int64)
+    :param batch_size: batch size
+    :type batch_size: int
+    :param go_classes: GO classes embeddings
+    :type go_classes: numpy.array(numpy.int64)
+    :param prot_classes: protein classes embeddings
+    :type prot_classes: numpy.array(numpy.int64)
+    :param go_threshold: value from class_index_dict starting from which GO classes are encoded
+    :type go_threshold: int
+    :param device: device name, `cuda` or `cpu`
+    :type device: str
+    :param negative_mode: negative sampling strategy, `random` for random sampling, `filtered` for filtering using deductive closure
+    :type negative_mode: str
+    :param path_to_dc: absolute filepath to deductive closure ontology
+    :type path_to_dc: str
+    :param class_index_dict: dictionary of classes and their embeddings
+    :type class_index_dict: dict(str, numpy.array)
+    :param object_property_index_dict: dictionary of relations and their embeddings
+    :type object_property_index_dict: dict(str, numpy.array)
+    :param random_negative_fraction: the fraction of random negatives (the rest negatives are sampled from the deductive closure), should be between 0 and 1
+    :type random_negative_fraction: float/int
+    """
+
     def __init__(
         self,
         gci0,
@@ -84,6 +123,17 @@ class OntologyDataLoader:
         return self.next()
 
     def generate_negatives(self, gci_name, pos_batch):
+        """
+        Function for negative batch sampling
+
+        :param gci_name: GCI abbreviation, one of [`gci0`, `gci1`, `gci2`, `gci3`, `gci0_bot`, `gci1_bot`, `gci3_bot`]
+        :type gci_name: str
+        :param pos_batch: batch of positives
+        :type pos_batch: torch.Tensor(torch.int64)
+        :return neg_batch: batch of negatives
+        :type neg_batch: torch.Tensor(torch.int64)
+        """
+
         np.random.seed(0)
         if gci_name == "gci0":
             if self.random_neg_fraction >= 1:
@@ -368,13 +418,32 @@ class OntologyDataLoader:
         return neg_batch
 
     def next(self):
+        """
+        Batch iterator
+
+        :return gci0_batch: a batch of positives for axioms of type `C \sqsubseteq D`
+        :type gci0_batch: torch.Tensor(torch.int64)
+        :return gci0_neg_batch: a batch of negatives for axioms of type `C \sqsubseteq D`
+        :type gci0_neg_batch: torch.Tensor(torch.int64)
+        :param gci1: a set of axioms of type `C \sqcap D \sqsubseteq E`
+        :type gci1: torch.Tensor(torch.int64)
+        :param gci2: a set of axioms of type `C \sqsubseteq \exists R.D`
+        :type gci2: torch.Tensor(torch.int64)
+        :param gci3: a set of axioms of type `\exists R.C \sqsubseteq D`
+        :type gci3: torch.Tensor(torch.int64)
+        :param gci0_bot: a set of axioms of type `C \sqsubseteq \bot`
+        :type gci0_bot: torch.Tensor(torch.int64)
+        :param gci1_bot: a set of axioms of type `C \sqcap D \sqsubseteq \bot`
+        :type gci1_bot: torch.Tensor(torch.int64)
+        :param gci3_bot: a set of axioms of type `\exists R.C \sqsubseteq \bot`
+        :type gci3_bot: torch.Tensor(torch.int64)
+        """
         if self.i < self.num_steps:
             if self.gci0.size()[0] > 0:
                 j = self.remainders["gci0"]
                 gci0_batch = self.gci0[
                     self.batch_size * j : self.batch_size * (j + 1), :
                 ]
-                gci0_weights = self.get_batch_weights("gci0", gci0_batch)
                 self.remainders["gci0"] = (j + 1) % self.steps["gci0"]
                 gci0_neg_batch = self.generate_negatives("gci0", gci0_batch)
             else:
@@ -385,7 +454,6 @@ class OntologyDataLoader:
                 gci1_batch = self.gci1[
                     self.batch_size * j : self.batch_size * (j + 1), :
                 ]
-                gci1_weights = self.get_batch_weights("gci1", gci1_batch)
                 self.remainders["gci1"] = (j + 1) % self.steps["gci1"]
                 gci1_neg_batch = self.generate_negatives("gci1", gci1_batch)
             else:
@@ -396,7 +464,6 @@ class OntologyDataLoader:
                 gci2_batch = self.gci2[
                     self.batch_size * j : self.batch_size * (j + 1), :
                 ]
-                gci2_weights = self.get_batch_weights("gci2", gci2_batch)
                 self.remainders["gci2"] = (j + 1) % self.steps["gci2"]
                 gci2_neg_batch = self.generate_negatives("gci2", gci2_batch)
             else:
@@ -407,7 +474,6 @@ class OntologyDataLoader:
                 gci3_batch = self.gci3[
                     self.batch_size * j : self.batch_size * (j + 1), :
                 ]
-                gci3_weights = self.get_batch_weights("gci3", gci3_batch)
                 self.remainders["gci3"] = (j + 1) % self.steps["gci3"]
                 gci3_neg_batch = self.generate_negatives("gci3", gci3_batch)
             else:
