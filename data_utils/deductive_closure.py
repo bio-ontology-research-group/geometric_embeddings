@@ -15,6 +15,13 @@ import os
 
 
 def precompute_gci0_dc(data_path):
+    """
+    Compute GCI0 (`C \sqsubseteq D`) deductive closure
+
+    :param data_path: absolute filepath to the folder containing train ontology
+    :type data_path: str
+    """
+
     dataset = PathDataset(os.path.join(data_path, "ontology.owl"))
 
     elnorm = ELNormalizer()
@@ -61,6 +68,15 @@ def precompute_gci0_dc(data_path):
 
 
 def get_gci0_dict(data_path):
+    """
+    Create a dictionary `class: its superclasses`
+
+    :param data_path: absolute filepath to the folder containing ontology with GCI0 deductive closure
+    :type data_path: str
+    :return gci0_dict: a dictionary `class: its superclasses`
+    :type gci0_dict: dict(org.semanticweb.owlapi.model.OWLClass, list(org.semanticweb.owlapi.model.OWLClass))
+    """
+
     gci0_dataset = PathDataset(os.path.join(data_path, "gci0_ontology.owl"))
     gci0_dict = {}
     for ax in list(gci0_dataset.ontology.getAxioms()):
@@ -83,6 +99,15 @@ def get_gci0_dict(data_path):
 
 
 def get_inv_gci0_dict(gci0_dict):
+    """
+    Create a dictionary `class: its subclasses`
+
+    :param gci0_dict: dictionary `class: its superclasses`
+    :type gci0_dict: dict(org.semanticweb.owlapi.model.OWLClass, list(org.semanticweb.owlapi.model.OWLClass))
+    :return inv_gci0_dict: a dictionary `class: its subclasses`
+    :type inv_gci0_dict: dict(org.semanticweb.owlapi.model.OWLClass, list(org.semanticweb.owlapi.model.OWLClass))
+    """
+
     inv_gci0_dict = {}
     for k in gci0_dict.keys():
         for v in gci0_dict[k]:
@@ -94,6 +119,13 @@ def get_inv_gci0_dict(gci0_dict):
 
 
 def precompute_gci1_dc(data_path):
+    """
+    Compute GCI1 (`C \sqcap D \sqsubseteq E`) deductive closure
+
+    :param data_path: absolute filepath to the folder containing train ontology
+    :type data_path: str
+    """
+
     dataset = PathDataset(os.path.join(data_path, "ontology.owl"))
 
     gci0_dict = get_gci0_dict(data_path)
@@ -153,6 +185,13 @@ def precompute_gci1_dc(data_path):
 
 
 def precompute_gci2_dc(data_path):
+    """
+    Compute GCI2 (`C \sqsubseteq \exists R.D`) deductive closure
+
+    :param data_path: absolute filepath to the folder containing train ontology
+    :type data_path: str
+    """
+
     dataset = PathDataset(os.path.join(data_path, "ontology.owl"))
 
     gci0_dict = get_gci0_dict(data_path)
@@ -205,6 +244,13 @@ def precompute_gci2_dc(data_path):
 
 
 def precompute_gci3_dc(data_path):
+    """
+    Compute GCI3 (`\exists R.C \sqsubseteq D`) deductive closure
+
+    :param data_path: absolute filepath to the folder containing train ontology
+    :type data_path: str
+    """
+
     dataset = PathDataset(os.path.join(data_path, "ontology.owl"))
 
     gci0_dict = get_gci0_dict(data_path)
@@ -257,6 +303,13 @@ def precompute_gci3_dc(data_path):
 
 
 def precompute_gci1_bot_dc(data_path):
+    """
+    Compute GCI1_BOT (`C \sqcap D \sqsubseteq \bot`) deductive closure
+
+    :param data_path: absolute filepath to the folder containing train ontology
+    :type data_path: str
+    """
+
     dataset = PathDataset(os.path.join(data_path, "ontology.owl"))
 
     gci0_dict = get_gci0_dict(data_path)
