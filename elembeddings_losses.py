@@ -11,6 +11,27 @@ def gci0_loss(
     loss_type,
     neg=False,
 ):
+    """
+    Compute GCI0 (`C \sqsubseteq D`) loss
+
+    :param data: GCI0 data
+    :type data: torch.Tensor(torch.int64)
+    :param class_embed: class centers' embeddings
+    :type class_embed: torch.nn.modules.sparse.Embedding
+    :param class_rad: class radii embeddings
+    :type class_rad: torch.nn.modules.sparse.Embedding
+    :param class_reg: class center regularization function
+    :type class_reg: method
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :param neg: whether to compute negative or positive loss
+    :type neg: bool
+    :return: loss value for each data sample
+    :return type: torch.Tensor(torch.float64)
+    """
+
     if neg:
         return gci1_bot_loss(
             data,
@@ -34,6 +55,17 @@ def gci0_loss(
 
 
 def gci0_bot_loss(data, class_rad):
+    """
+    Compute GCI0_BOT (`C \sqsubseteq \bot`) loss
+
+    :param data: GCI0_BOT data
+    :type data: torch.Tensor(torch.int64)
+    :param class_rad: class radii embeddings
+    :type class_rad: torch.nn.modules.sparse.Embedding
+    :return: loss value for each data sample
+    :return type: torch.Tensor(torch.float64)
+    """
+
     rc = th.abs(class_rad(data[:, 0]))
     return rc
 
@@ -47,6 +79,27 @@ def gci1_loss(
     loss_type,
     neg=False,
 ):
+    """
+    Compute GCI1 (`C \sqcap D \sqsubseteq E`) loss
+
+    :param data: GCI1 data
+    :type data: torch.Tensor(torch.int64)
+    :param class_embed: class centers' embeddings
+    :type class_embed: torch.nn.modules.sparse.Embedding
+    :param class_rad: class radii embeddings
+    :type class_rad: torch.nn.modules.sparse.Embedding
+    :param class_reg: class center regularization function
+    :type class_reg: method
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :param neg: whether to compute negative or positive loss
+    :type neg: bool
+    :return: loss value for each data sample
+    :return type: torch.Tensor(torch.float64)
+    """
+
     if neg:
         return gci1_loss_neg(
             data,
@@ -87,6 +140,25 @@ def gci1_loss_neg(
     margin,
     loss_type,
 ):
+    """
+    Compute GCI1 (`C \sqcap D \sqsubseteq E`) negative loss
+
+    :param data: GCI1 data
+    :type data: torch.Tensor(torch.int64)
+    :param class_embed: class centers' embeddings
+    :type class_embed: torch.nn.modules.sparse.Embedding
+    :param class_rad: class radii embeddings
+    :type class_rad: torch.nn.modules.sparse.Embedding
+    :param class_reg: class center regularization function
+    :type class_reg: method
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :return: loss value for each data sample
+    :return type: torch.Tensor(torch.float64)
+    """
+
     loss_func = relu if loss_type == "relu" else leaky_relu
     c = class_embed(data[:, 0])
     d = class_embed(data[:, 1])
@@ -116,6 +188,25 @@ def gci1_bot_loss(
     margin,
     loss_type,
 ):
+    """
+    Compute GCI1_BOT (`C \sqcap D \sqsubseteq \bot`) loss
+
+    :param data: GCI1_BOT data
+    :type data: torch.Tensor(torch.int64)
+    :param class_embed: class centers' embeddings
+    :type class_embed: torch.nn.modules.sparse.Embedding
+    :param class_rad: class radii embeddings
+    :type class_rad: torch.nn.modules.sparse.Embedding
+    :param class_reg: class center regularization function
+    :type class_reg: method
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :return: loss value for each data sample
+    :return type: torch.Tensor(torch.float64)
+    """
+
     loss_func = relu if loss_type == "relu" else leaky_relu
     c = class_embed(data[:, 0])
     d = class_embed(data[:, 1])
@@ -137,6 +228,29 @@ def gci2_loss(
     loss_type,
     neg=False,
 ):
+    """
+    Compute GCI2 (`C \sqsubseteq \exists R.D`) loss
+
+    :param data: GCI2 data
+    :type data: torch.Tensor(torch.int64)
+    :param class_embed: class centers' embeddings
+    :type class_embed: torch.nn.modules.sparse.Embedding
+    :param class_rad: class radii embeddings
+    :type class_rad: torch.nn.modules.sparse.Embedding
+    :param rel_embed: relations' embeddings
+    :type rel_embed: torch.nn.modules.sparse.Embedding
+    :param class_reg: class center regularization function
+    :type class_reg: method
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :param neg: whether to compute negative or positive loss
+    :type neg: bool
+    :return: loss value for each data sample
+    :return type: torch.Tensor(torch.float64)
+    """
+
     if neg:
         return gci2_loss_neg(
             data,
@@ -173,6 +287,27 @@ def gci2_loss_neg(
     margin,
     loss_type,
 ):
+    """
+    Compute GCI2 (`C \sqsubseteq \exists R.D`) negative loss
+
+    :param data: GCI2 data
+    :type data: torch.Tensor(torch.int64)
+    :param class_embed: class centers' embeddings
+    :type class_embed: torch.nn.modules.sparse.Embedding
+    :param class_rad: class radii embeddings
+    :type class_rad: torch.nn.modules.sparse.Embedding
+    :param rel_embed: relations' embeddings
+    :type rel_embed: torch.nn.modules.sparse.Embedding
+    :param class_reg: class center regularization function
+    :type class_reg: method
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :return: loss value for each data sample
+    :return type: torch.Tensor(torch.float64)
+    """
+
     loss_func = relu if loss_type == "relu" else leaky_relu
     c = class_embed(data[:, 0])
     rE = rel_embed(data[:, 1])
@@ -195,6 +330,29 @@ def gci3_loss(
     loss_type,
     neg=False,
 ):
+    """
+    Compute GCI3 (`\exists R.C \sqsubseteq D`) loss
+
+    :param data: GCI3 data
+    :type data: torch.Tensor(torch.int64)
+    :param class_embed: class centers' embeddings
+    :type class_embed: torch.nn.modules.sparse.Embedding
+    :param class_rad: class radii embeddings
+    :type class_rad: torch.nn.modules.sparse.Embedding
+    :param rel_embed: relations' embeddings
+    :type rel_embed: torch.nn.modules.sparse.Embedding
+    :param class_reg: class center regularization function
+    :type class_reg: method
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :param neg: whether to compute negative or positive loss
+    :type neg: bool
+    :return: loss value for each data sample
+    :return type: torch.Tensor(torch.float64)
+    """
+
     if neg:
         return gci3_loss_neg(
             data,
@@ -229,6 +387,27 @@ def gci3_loss_neg(
     margin,
     loss_type,
 ):
+    """
+    Compute GCI3 (`\exists R.C \sqsubseteq D`) negative loss
+
+    :param data: GCI3 data
+    :type data: torch.Tensor(torch.int64)
+    :param class_embed: class centers' embeddings
+    :type class_embed: torch.nn.modules.sparse.Embedding
+    :param class_rad: class radii embeddings
+    :type class_rad: torch.nn.modules.sparse.Embedding
+    :param rel_embed: relations' embeddings
+    :type rel_embed: torch.nn.modules.sparse.Embedding
+    :param class_reg: class center regularization function
+    :type class_reg: method
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :return: loss value for each data sample
+    :return type: torch.Tensor(torch.float64)
+    """
+
     loss_func = relu if loss_type == "relu" else leaky_relu
     rE = rel_embed(data[:, 0])
     c = class_embed(data[:, 1])
@@ -243,5 +422,16 @@ def gci3_loss_neg(
 
 
 def gci3_bot_loss(data, class_rad):
+    """
+    Compute GCI3_BOT (`\exists R.C \sqsubseteq \bot`) loss
+
+    :param data: GCI3_BOT data
+    :type data: torch.Tensor(torch.int64)
+    :param class_rad: class radii embeddings
+    :type class_rad: torch.nn.modules.sparse.Embedding
+    :return: loss value for each data sample
+    :return type: torch.Tensor(torch.float64)
+    """
+
     rc = th.abs(class_rad(data[:, 1]))
     return rc
