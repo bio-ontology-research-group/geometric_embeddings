@@ -10,7 +10,7 @@ from evaluation_utils import elembeddings_sim
 from data_utils.dataloader import OntologyDataLoader
 import torch as th
 from torch import nn
-from torch.nn.functional import relu, logsigmoid
+from torch.nn.functional import relu
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from tqdm import trange
 import numpy as np
@@ -18,6 +18,31 @@ from mowl.datasets import PathDataset
 
 
 class ELEmModule(ELModule):
+    """
+    ELEmbeddings module
+
+    :param nb_ont_classes: total number of classes
+    :type nb_ont_classes: int
+    :param nb_go_classes: total number of GO classes
+    :type nb_go_classes: int
+    :param nb_rels: total number of relations
+    :type nb_rels: int
+    :param go_threshold: value from class_index_dict starting from which GO classes are encoded
+    :type go_threshold: int
+    :param embed_dim: embedding dimension
+    :type embed_dim: int
+    :param margin: margin parameter \gamma
+    :type margin: float/int
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :param reg_r: the radius of regularization ball
+    :type reg_r: float/int
+    :param reg_mode: mode of regularization, `relaxed` for \|c\| \leq R, `original` for \|c\| = R
+    :type reg_mode: float/int
+    :param neg_losses: abbreviations of GCIs to use for negative sampling
+    :type neg_losses: list(str)
+    """
+
     def __init__(
         self,
         nb_ont_classes,
@@ -72,6 +97,15 @@ class ELEmModule(ELModule):
             raise ValueError('"loss_type" should be one of ["relu", "leaky_relu"]')
 
     def class_reg(self, x):
+        """
+        Regularization function
+
+        :param x: point to regularize
+        :type x: torch.Tensor(torch.float64)
+        :return res: regularized point
+        :type res: torch.Tensor(torch.float64)
+        """
+
         if self.reg_r is None:
             res = th.zeros(x.size()[0], 1)
         else:
@@ -83,6 +117,17 @@ class ELEmModule(ELModule):
         return res
 
     def gci0_loss(self, data, neg=False):
+        """
+        Compute GCI0 (`C \sqsubseteq D`) loss
+
+        :param data: GCI0 data
+        :type data: torch.Tensor(torch.int64)
+        :param neg: whether to compute negative or positive loss
+        :type neg: bool
+        :return: loss value for each data sample
+        :return type: torch.Tensor(torch.float64)
+        """
+
         return gci0_loss(
             data,
             self.class_embed,
@@ -94,9 +139,31 @@ class ELEmModule(ELModule):
         )
 
     def gci0_bot_loss(self, data, neg=False):
+        """
+        Compute GCI0_BOT (`C \sqsubseteq \bot`) loss
+
+        :param data: GCI0_BOT data
+        :type data: torch.Tensor(torch.int64)
+        :param neg: whether to compute negative or positive loss
+        :type neg: bool
+        :return: loss value for each data sample
+        :return type: torch.Tensor(torch.float64)
+        """
+
         return gci0_bot_loss(data, self.class_rad)
 
     def gci1_loss(self, data, neg=False):
+        """
+        Compute GCI1 (`C \sqcap D \sqsubseteq E`) loss
+
+        :param data: GCI1 data
+        :type data: torch.Tensor(torch.int64)
+        :param neg: whether to compute negative or positive loss
+        :type neg: bool
+        :return: loss value for each data sample
+        :return type: torch.Tensor(torch.float64)
+        """
+
         return gci1_loss(
             data,
             self.class_embed,
@@ -108,6 +175,17 @@ class ELEmModule(ELModule):
         )
 
     def gci1_bot_loss(self, data, neg=False):
+        """
+        Compute GCI1_BOT (`C \sqcap D \sqsubseteq \bot`) loss
+
+        :param data: GCI1_BOT data
+        :type data: torch.Tensor(torch.int64)
+        :param neg: whether to compute negative or positive loss
+        :type neg: bool
+        :return: loss value for each data sample
+        :return type: torch.Tensor(torch.float64)
+        """
+
         return gci1_bot_loss(
             data,
             self.class_embed,
@@ -119,6 +197,17 @@ class ELEmModule(ELModule):
         )
 
     def gci2_loss(self, data, neg=False):
+        """
+        Compute GCI2 (`C \sqsubseteq \exists R.D`) loss
+
+        :param data: GCI2 data
+        :type data: torch.Tensor(torch.int64)
+        :param neg: whether to compute negative or positive loss
+        :type neg: bool
+        :return: loss value for each data sample
+        :return type: torch.Tensor(torch.float64)
+        """
+
         return gci2_loss(
             data,
             self.class_embed,
@@ -131,6 +220,17 @@ class ELEmModule(ELModule):
         )
 
     def gci3_loss(self, data, neg=False):
+        """
+        Compute GCI3 (`\exists R.C \sqsubseteq D`) loss
+
+        :param data: GCI3 data
+        :type data: torch.Tensor(torch.int64)
+        :param neg: whether to compute negative or positive loss
+        :type neg: bool
+        :return: loss value for each data sample
+        :return type: torch.Tensor(torch.float64)
+        """
+
         return gci3_loss(
             data,
             self.class_embed,
@@ -143,9 +243,29 @@ class ELEmModule(ELModule):
         )
 
     def gci3_bot_loss(self, data, neg=False):
+        """
+        Compute GCI3_BOT (`\exists R.C \sqsubseteq \bot`) loss
+
+        :param data: GCI3_BOT data
+        :type data: torch.Tensor(torch.int64)
+        :param neg: whether to compute negative or positive loss
+        :type neg: bool
+        :return: loss value for each data sample
+        :return type: torch.Tensor(torch.float64)
+        """
+
         return gci3_bot_loss(data, self.class_rad)
 
     def eval_method(self, data):
+        """
+        Compute evaluation score (for GCI2 `C \sqsubseteq \exists R.D` axioms)
+
+        :param data: evaluation data
+        :type data: torch.Tensor(torch.int64)
+        :return: evaluation score value for each data sample
+        :return type: torch.Tensor(torch.float64)
+        """
+
         return elembeddings_sim(
             data,
             self.class_embed,
