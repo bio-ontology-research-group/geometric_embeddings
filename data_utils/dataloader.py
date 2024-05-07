@@ -425,19 +425,32 @@ class OntologyDataLoader:
         :type gci0_batch: torch.Tensor(torch.int64)
         :return gci0_neg_batch: a batch of negatives for axioms of type `C \sqsubseteq D`
         :type gci0_neg_batch: torch.Tensor(torch.int64)
-        :param gci1: a set of axioms of type `C \sqcap D \sqsubseteq E`
-        :type gci1: torch.Tensor(torch.int64)
-        :param gci2: a set of axioms of type `C \sqsubseteq \exists R.D`
-        :type gci2: torch.Tensor(torch.int64)
-        :param gci3: a set of axioms of type `\exists R.C \sqsubseteq D`
-        :type gci3: torch.Tensor(torch.int64)
-        :param gci0_bot: a set of axioms of type `C \sqsubseteq \bot`
-        :type gci0_bot: torch.Tensor(torch.int64)
-        :param gci1_bot: a set of axioms of type `C \sqcap D \sqsubseteq \bot`
-        :type gci1_bot: torch.Tensor(torch.int64)
-        :param gci3_bot: a set of axioms of type `\exists R.C \sqsubseteq \bot`
-        :type gci3_bot: torch.Tensor(torch.int64)
+        :return gci1_batch: a batch of positives for axioms of type `C \sqcap D \sqsubseteq E`
+        :type gci1_batch: torch.Tensor(torch.int64)
+        :return gci1_neg_batch: a batch of negatives for axioms of type `C \sqcap D \sqsubseteq E`
+        :type gci1_neg_batch: torch.Tensor(torch.int64)
+        :return gci2_batch: a batch of positives for axioms of type `C \sqsubseteq \exists R.D`
+        :type gci2_batch: torch.Tensor(torch.int64)
+        :return gci2_neg_batch: a batch of negatives for axioms of type `C \sqsubseteq \exists R.D`
+        :type gci2_neg_batch: torch.Tensor(torch.int64)
+        :return gci3_batch: a batch of positives for axioms of type `\exists R.C \sqsubseteq D`
+        :type gci3_batch: torch.Tensor(torch.int64)
+        :return gci3_neg_batch: a batch of negatives for axioms of type `\exists R.C \sqsubseteq D`
+        :type gci3_neg_batch: torch.Tensor(torch.int64)
+        :return gci0_bot_batch: a batch of positives for axioms of type `C \sqsubseteq \bot`
+        :type gci0_bot_batch: torch.Tensor(torch.int64)
+        :return gci0_bot_neg_batch: a batch of negatives for axioms of type `C \sqsubseteq \bot`
+        :type gci0_bot_neg_batch: torch.Tensor(torch.int64)
+        :return gci1_bot_batch: a batch of positives for axioms of type `C \sqcap D \sqsubseteq \bot`
+        :type gci1_bot_batch: torch.Tensor(torch.int64)
+        :return gci1_bot_neg_batch: a batch of negatives for axioms of type `C \sqcap D \sqsubseteq \bot`
+        :type gci1_bot_neg_batch: torch.Tensor(torch.int64)
+        :return gci3_bot_batch: a batch of positives for axioms of type `\exists R.C \sqsubseteq \bot`
+        :type gci3_bot_batch: torch.Tensor(torch.int64)
+        :return gci3_bot_neg_batch: a batch of negatives for axioms of type `\exists R.C \sqsubseteq \bot`
+        :type gci3_bot_neg_batch: torch.Tensor(torch.int64)
         """
+
         if self.i < self.num_steps:
             if self.gci0.size()[0] > 0:
                 j = self.remainders["gci0"]
