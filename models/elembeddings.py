@@ -39,7 +39,7 @@ class ELEmModule(ELModule):
     :type reg_r: float/int
     :param reg_mode: mode of regularization, `relaxed` for \|c\| \leq R, `original` for \|c\| = R
     :type reg_mode: float/int
-    :param neg_losses: abbreviations of GCIs to use for negative sampling
+    :param neg_losses: abbreviations of GCIs to use for negative sampling (`gci0`, `gci1`, `gci2`, `gci3`, `gci0_bot`, `gci1_bot`, `gci3_bot`)
     :type neg_losses: list(str)
     """
 
@@ -286,22 +286,24 @@ class ELEmbeddings(EmbeddingELModel):
     :type embed_dim: int
     :param margin: margin parameter \gamma
     :type margin: float/int
-    :param nb_rels: total number of relations
-    :type nb_rels: int
-    :param go_threshold: value from class_index_dict starting from which GO classes are encoded
-    :type go_threshold: int
-    :param embed_dim: embedding dimension
-    :type embed_dim: int
-    :param margin: margin parameter \gamma
-    :type margin: float/int
-    :param loss_type: name of the loss, `relu` or `leaky_relu`
-    :type loss_type: str
     :param reg_r: the radius of regularization ball
     :type reg_r: float/int
     :param reg_mode: mode of regularization, `relaxed` for \|c\| \leq R, `original` for \|c\| = R
     :type reg_mode: float/int
-    :param neg_losses: abbreviations of GCIs to use for negative sampling
+    :param neg_losses: abbreviations of GCIs to use for negative sampling (`gci0`, `gci1`, `gci2`, `gci3`, `gci0_bot`, `gci1_bot`, `gci3_bot`)
     :type neg_losses: list(str)
+    :param loss_type: name of the loss, `relu` or `leaky_relu`
+    :type loss_type: str
+    :param learning_rate: learning rate
+    :type learning_rate: float
+    :param epochs: number of training epochs 
+    :type epochs: int
+    :param batch_size: batch size
+    :type batch_size: int
+    :param model_filepath: path to model checkpoint
+    :type model_filepath: str
+    :param device: device to use, `cpu` or `cuda`
+    :type device: str
     """
 
     def __init__(
@@ -339,6 +341,10 @@ class ELEmbeddings(EmbeddingELModel):
         self.init_model()
 
     def init_model(self):
+        """
+        Load ELEmbeddings module
+        """
+
         self.nb_go_classes = len(
             [v for k, v in self.class_index_dict.items() if "GO" in k]
         )
@@ -360,6 +366,10 @@ class ELEmbeddings(EmbeddingELModel):
         self.eval_method = self.module.eval_method
 
     def load_eval_data(self):
+        """
+        Load evaluation data
+        """
+
         if self._loaded_eval:
             return
 
@@ -379,6 +389,15 @@ class ELEmbeddings(EmbeddingELModel):
         self._loaded_eval = True
 
     def get_embeddings(self):
+        """
+        Get embeddings of relations and classes from the model checkpoint
+
+        :return ent_embeds: dictionary class_name: its embedding
+        :type ent_embeds: dict(str, numpy.array(numpy.float64))
+        :return rel_embeds: dictionary relation_name: its embedding
+        :type rel_embeds: dict(str, numpy.array(numpy.float64))
+        """
+
         self.init_model()
 
         print("Load the best model", self.model_filepath)
@@ -401,27 +420,47 @@ class ELEmbeddings(EmbeddingELModel):
         return ent_embeds, rel_embeds
 
     def load_best_model(self):
+        """
+        Load the model from the checkpoint
+        """
+
         self.init_model()
         self.module.load_state_dict(th.load(self.model_filepath))
         self.module.eval()
 
     @property
     def training_set(self):
+        """
+        Get a set of triples that are true positives from the train dataset
+        """
+
         self.load_eval_data()
         return self._training_set
 
     @property
     def testing_set(self):
+        """
+        Get a set of triples that are true positives from the test dataset
+        """
+
         self.load_eval_data()
         return self._testing_set
 
     @property
     def head_entities(self):
+        """
+        Get a set of head entities `h` from triples `(h, r, t)`
+        """
+
         self.load_eval_data()
         return self._head_entities
 
     @property
     def tail_entities(self):
+        """
+        Get a set of tail entities `t` from triples `(h, r, t)`
+        """
+
         self.load_eval_data()
         return self._tail_entities
 
@@ -430,6 +469,10 @@ class ELEmbeddings(EmbeddingELModel):
 
 
 class ELEmPPI(ELEmbeddings):
+    """
+    Final ELEmbeddings model
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -441,6 +484,21 @@ class ELEmPPI(ELEmbeddings):
         path_to_dc=None,
         random_neg_fraction=1,
     ):
+        """
+        Model training
+
+        :param patience: patience parameter for the scheduler
+        :type patience: int
+        :param epochs_no_improve: for how many epochs validation loss doesn't improve
+        :type epochs_no_improve: int
+        :param loss_weight: whether to use loss weights or not
+        :type loss_weight: bool
+        :param path_to_dc: absolute path to deductive closure ontology, need to provide if filtered negative sampling strategy is chosen or random_neg_fraction is less than 1
+        :type path_to_dc: str
+        :param random_neg_fraction: the fraction of random negatives (the rest negatives are sampled from the deductive closure), should be between 0 and 1
+        :type random_neg_fraction: float/int
+        """
+
         optimizer = th.optim.Adam(self.module.parameters(), lr=self.learning_rate)
         scheduler = ReduceLROnPlateau(optimizer, patience=patience)
         no_improve = 0
@@ -598,4 +656,11 @@ class ELEmPPI(ELEmbeddings):
                 break
 
     def eval_method(self, data):
+        """
+        Evaluation method
+
+        :param data: data for evaluation
+        :type data: torch.Tensor(torch.int64)
+        """
+
         return self.module.eval_method(data)

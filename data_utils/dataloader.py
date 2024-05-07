@@ -45,8 +45,8 @@ class OntologyDataLoader:
     :type class_index_dict: dict(str, numpy.array)
     :param object_property_index_dict: dictionary of relations and their embeddings
     :type object_property_index_dict: dict(str, numpy.array)
-    :param random_negative_fraction: the fraction of random negatives (the rest negatives are sampled from the deductive closure), should be between 0 and 1
-    :type random_negative_fraction: float/int
+    :param random_neg_fraction: the fraction of random negatives (the rest negatives are sampled from the deductive closure), should be between 0 and 1
+    :type random_neg_fraction: float/int
     """
 
     def __init__(
